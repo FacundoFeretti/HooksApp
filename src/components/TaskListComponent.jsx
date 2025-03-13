@@ -1,40 +1,10 @@
+import { useDispatch, useSelector } from 'react-redux';
 import {useForm} from '../hooks/useForm';
-import { useReducer } from 'react';
 
 export const TaskListComponent = () => {
 
-    // Estado inicial
-    const initialState = [
-        { id: 1, name: 'Explicar Reducers', finalizada: false }
-    ];
-
-
-    // Declaro el reducer (funcion que define los cambios a hacer en el estado global)
-    const taskReducer = (state = initialState, action = {}) => {
-
-        switch(action.type){
-            case '[TASKS] Agregar Tarea':
-                return [...state, action.payload]
-            case '[TASKS] Finalizar Tarea':
-                return state.map(e => {
-                    if(e.id === action.payload){
-                        return {
-                            ...e,
-                            finalizada: !e.finalizada
-                        }
-                    } else return e
-                })
-            case '[TASKS] Eliminar Tarea':
-                return state.filter(e => e.id !== action.payload)
-            case '[TASKS] Borrar Tareas':
-                return [];
-            default: break;
-                    
-        }
-
-        return state
-
-    };
+    const tareas = useSelector(state => state)
+    const dispatch = useDispatch();
 
     const addTask = (event) => {
         event.preventDefault()
@@ -48,6 +18,7 @@ export const TaskListComponent = () => {
             type: '[TASKS] Agregar Tarea',
             payload: nuevaTarea
         }
+        resetForm()
         dispatch(action)
     };
 
@@ -79,10 +50,9 @@ export const TaskListComponent = () => {
     // Ese valor lo setea en el estado tarea y este es luego utilizado
     // En addTask() el cual crea la nueva tarea para el estado del reducer
     // Y setea en name el valor del estado tarea.
-    const {tarea, onInputChange} = useForm({tarea: ''})
+    const {tarea, onInputChange, resetForm} = useForm({tarea: ''})
     //State es el estado actual despues de las actualizaciones.
     //Dispatch es uan funcion que envia acciones al reducer para actualizar el estado.
-    const [state, dispatch] = useReducer(taskReducer, initialState)
 
     return (
         <>
@@ -92,8 +62,9 @@ export const TaskListComponent = () => {
                     <input 
                     type="text" 
                     className="form-control" 
-                    id="tarea"list-group-item
+                    id="tarea"
                     name="tarea" 
+                    value={tarea}
                     onChange={onInputChange}
                     />
                 </div>
@@ -103,7 +74,7 @@ export const TaskListComponent = () => {
             <hr />
             <ul className='list-group'>
                 {
-                    state.map(e => {
+                    tareas.map(e => {
                         return (
                             <li
                                 className='list-group-item d-flex justify-content-between align-items-center'
